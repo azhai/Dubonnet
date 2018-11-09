@@ -11,7 +11,7 @@ function Exec
     }
 }
 
-if(Test-Path .\src\Dapper.Nona\artifacts) { Remove-Item .\src\Dapper.Nona\artifacts -Force -Recurse }
+if(Test-Path .\src\Dubonnet\artifacts) { Remove-Item .\src\Dubonnet\artifacts -Force -Recurse }
 
 exec { & dotnet --info }
 exec { & dotnet restore }
@@ -23,10 +23,10 @@ $commitHash = $(git rev-parse --short HEAD)
 $buildSuffix = @{ $true = "$($suffix)-$($commitHash)"; $false = "$($branch)-$($commitHash)" }[$suffix -ne ""]
 echo "build: Build version suffix is $buildSuffix"
 
-exec { & dotnet build Dapper.Nona.sln -c Release --version-suffix=$buildSuffix /p:CI=true }
+exec { & dotnet build Dubonnet.sln -c Release --version-suffix=$buildSuffix /p:CI=true }
 
 echo "build: Executing tests"
-Push-Location -Path .\test\Dapper.Nona.Tests
+Push-Location -Path .\test\Dubonnet.Tests
 exec { & dotnet test -c Release --no-build }
 Pop-Location
 
@@ -38,4 +38,4 @@ else {
 }
 
 echo "build: Creating NuGet package with suffix $versionSuffix"
-exec { & dotnet pack .\src\Dapper.Nona\Dapper.Nona.csproj -c Release -o .\artifacts --no-build --version-suffix=$versionSuffix }
+exec { & dotnet pack .\src\Dubonnet\Dubonnet.csproj -c Release -o .\artifacts --no-build --version-suffix=$versionSuffix }
