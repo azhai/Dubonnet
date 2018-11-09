@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Dubonnet.Internal;
+using Dapper;
 
 namespace Dubonnet
 {

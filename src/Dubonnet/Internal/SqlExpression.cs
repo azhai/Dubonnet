@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Dapper;
 using Dubonnet.Abstractions;
 
 namespace Dubonnet.Internal
