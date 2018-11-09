@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Simple CRUD operations for Dapper.</Description>
-    <Copyright>Copyright © Getson Cela, Edmond Shtogu  2018</Copyright>
+    <Copyright>Copyright © Getson Cela, Edmond Shtogu, Ryan Liu  2018</Copyright>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <Authors>Getson Cela, Edmond Shtogu</Authors>
+    <Authors>Getson Cela, Edmond Shtogu, Ryan Liu</Authors>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>nona;crud;dapper;database;orm;DapperDubon;DapperMagic;DapperOrm</PackageTags>
@@ -16,8 +16,8 @@
     <RootNamespace>Dubonnet</RootNamespace>
     <PackageId>Dubonnet</PackageId>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <RepositoryUrl>https://github.com/getson/Dubonnet</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/getson/Dubonnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/azhai/Dubonnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/azhai/Dubonnet</PackageProjectUrl>
     <Version>1.0.7</Version>
     <Product>Dubonnet</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

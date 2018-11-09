@@ -5,11 +5,11 @@ We decided to create a new repository because we are thinking a different approa
 <hr>
 Dubon provides a convenient API for CRUD operations using extension methods on the `IDbConnection` interface. The SQL queries are generated based on your POCO entities. Dubon also supports LINQ expressions which are being translated to SQL expressions. [Dapper](https://github.com/StackExchange/dapper-dot-net) is used for query execution and object mapping.
 
-Dubon also provides extensibility points to change the behavior of resolving table names, column names, the key property and POCO properties. See [Extensibility](https://github.com/getson/Dubon#extensibility) for more details.
+Dubon also provides extensibility points to change the behavior of resolving table names, column names, the key property and POCO properties. See [Extensibility](https://github.com/azhai/Dubon#extensibility) for more details.
 
 | Windows | NuGet | MyGet |
 | ------- | ----- | ----- |
-| [![AppVeyor](https://ci.appveyor.com/api/projects/status/34ptoeajvubcv95v?svg=true)](https://ci.appveyor.com/project/getson/dapper-nona) | [![NuGet](https://img.shields.io/nuget/vpre/dapper.nona.svg?style=flat-square)](https://www.nuget.org/packages/dapper.nona) | [![MyGet Pre Release](https://img.shields.io/myget/dapper-nona/vpre/Dapper.nona.svg?style=flat-square)](https://www.myget.org/feed/dapper-nona/package/nuget/dapper.nona) |
+| [![AppVeyor](https://ci.appveyor.com/api/projects/status/34ptoeajvubcv95v?svg=true)](https://ci.appveyor.com/project/azhai/dapper-nona) | [![NuGet](https://img.shields.io/nuget/vpre/dapper.nona.svg?style=flat-square)](https://www.nuget.org/packages/dapper.nona) | [![MyGet Pre Release](https://img.shields.io/myget/dapper-nona/vpre/Dapper.nona.svg?style=flat-square)](https://www.myget.org/feed/dapper-nona/package/nuget/dapper.nona) |
 
 ## Download
 
@@ -200,3 +200,4 @@ FluentMapper.Initialize(config =>
         config.ApplyToDubon();
     });
 ```
+
