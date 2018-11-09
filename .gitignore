@@ -10,4 +10,6 @@
 *.txt
 *.upx
 *.vscode
+bin/
+obj/
 tests/
