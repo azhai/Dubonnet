@@ -7,7 +7,7 @@ namespace Dubonnet.Resolvers
 {
     /// <inheritdoc />
     /// <summary>
-    /// Implements the <see cref="T:Dubonnet.Abstractions.IKeyPropertyResolver" />.
+    /// Implements the <see cref="T:DubonContext.Abstractions.IKeyPropertyResolver" />.
     /// </summary>
     public class DefaultDataColumnResolver : IDataColumnResolver
     {

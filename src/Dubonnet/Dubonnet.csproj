@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <BuildPackage>true</BuildPackage>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <Description>Simple CRUD operations for Dapper.</Description>
     <Copyright>Copyright © Getson Cela, Edmond Shtogu, Ryan Liu  2018</Copyright>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
@@ -18,9 +19,14 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/azhai/Dubonnet</RepositoryUrl>
     <PackageProjectUrl>https://github.com/azhai/Dubonnet</PackageProjectUrl>
-    <Version>1.0.7</Version>
+    <Version>2.0.0</Version>
     <Product>Dubonnet</Product>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Change the namespace</PackageReleaseNotes>
+    <FileVersion>2.0.0</FileVersion>
+    <Company>Getson Cela, Edmond Shtogu, Ryan Liu</Company>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -29,9 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
-    <PackageReference Include="Dapper.FluentMap" Version="1.6.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <ProjectReference Include="..\QueryBuilder\QueryBuilder.csproj" />
   </ItemGroup>
 </Project>

@@ -1,19 +1,106 @@
-# Dubon
-Micro ORM that runs on Dapper.
-Thanks to https://github.com/henkmollema/Dommel for the initial idea. We started this project since we don't want to use Entity Framework, we had a look on the market and decided to improve Dommel.
-We decided to create a new repository because we are thinking a different approach and these repositories will be different.
-<hr>
-Dubon provides a convenient API for CRUD operations using extension methods on the `IDbConnection` interface. The SQL queries are generated based on your POCO entities. Dubon also supports LINQ expressions which are being translated to SQL expressions. [Dapper](https://github.com/StackExchange/dapper-dot-net) is used for query execution and object mapping.
+# Dubonnet
+A .NET Core v2.1 ORM that runs on Dapper.
 
-Dubon also provides extensibility points to change the behavior of resolving table names, column names, the key property and POCO properties. See [Extensibility](https://github.com/azhai/Dubon#extensibility) for more details.
+[![NuGet](https://img.shields.io/nuget/dt/Microsoft.AspNetCore.Mvc.svg)](https://www.nuget.org/packages/Dubonnet/)
 
-| Windows | NuGet | MyGet |
-| ------- | ----- | ----- |
-| [![AppVeyor](https://ci.appveyor.com/api/projects/status/34ptoeajvubcv95v?svg=true)](https://ci.appveyor.com/project/azhai/dapper-nona) | [![NuGet](https://img.shields.io/nuget/vpre/dapper.nona.svg?style=flat-square)](https://www.nuget.org/packages/dapper.nona) | [![MyGet Pre Release](https://img.shields.io/myget/dapper-nona/vpre/Dapper.nona.svg?style=flat-square)](https://www.myget.org/feed/dapper-nona/package/nuget/dapper.nona) |
+下载 [NuGet](https://www.nuget.org/packages/Dubonnet):
 
-## Download
+Thanks to 
 
-Dubonnet is available on [NuGet](https://www.nuget.org/packages/Dubonnet):
+ * https://github.com/getson/Dapper.Nona
+ * https://github.com/henkmollema/Dommel
+ * https://github.com/sqlkata/querybuilder
+
+## Example
+
+1. 安装 .NET Core v2.1 版本
+
+2. 在命令行下以 webapi 为模板创建新项目
+```bash
+dotnet new webapi -n MyDubon -lang C#
+cd MyDubon
+#dotnet run #访问 https://localhost:5001/api/values/ 查看效果
+```
+并安装相关的依赖库
+```bash
+dotnet add package MySqlConnector
+dotnet add package Dapper
+dotnet add package Dubonnet
+dotnet add package Dubonnet.QueryBuilder
+```
+3. 创建 MySQL 数据库，修改配置文件 appsettings.json 增加数据库连接
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "server=127.0.0.1;user id=dba;password=pass;port=3306;database=db_mobile;SslMode=none"
+  },
+  "AllowedHosts": "*"
+}
+```
+
+4. 增加 Models 文件夹和两个文件 AppDbContext.cs 和 Mobile.cs
+```bash
+#复制 Dubonnet/src/Example/Models/ 下的这两个文件复制过来，
+#并将 namespace 从 Dubonnet.Example 改为 MyDubon
+```
+修改 Startup.cs 中 ConfigureServices() 增加依赖注入
+```csharp
+// 其他代码 ...
+
+namespace MyDubon
+{
+    public class Startup
+    {
+    	// 其他代码 ...
+    	
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var dsnMySql = Configuration.GetConnectionString("DefaultConnection");
+			services.AddSingleton(new AppDbContext(dsnMySql));
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+		}
+		
+		// 其他代码 ...
+	}
+}
+```
+
+5. 对 Controllers/ValuesController.cs 作如下修改
+```csharp
+// 其他代码 ...
+
+namespace MyDubon.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ValuesController : ControllerBase
+    {
+		private readonly AppDbContext db;
+		
+		public ValuesController(AppDbContext db)
+		{
+		    this.db = db;
+		}
+		
+		// GET api/values
+		[HttpGet]
+		public ActionResult<IEnumerable<string>> Get()
+		{
+		    var queryArea = db.Areas.Where("areacode", "0755");
+		    var area = queryArea.First<Area>();
+		    return new string[] { area.province, area.city };
+		    //return new string[] { "value1", "value2" };
+		}
+		
+		// 其他代码 ...
+	}
+}
+```
 
 <hr>
 
@@ -21,183 +108,86 @@ Dubonnet is available on [NuGet](https://www.nuget.org/packages/Dubonnet):
 
 #### Retrieving entities by id
 ```csharp
-using (var con = new SqlConnection())
-{
-   var product = con.Get<Product>(1);
-}
+var product = db.Products.Get(1);
 ```
 
 #### Retrieving all entities in a table
 ```csharp
-using (var con = new SqlConnection())
-{
-   var products = con.GetAll<Product>().ToList();
-}
+var products = db.Products.All().ToList();
 ```
 
-#### Selecting entities using a predicate
-Dubon allows you to specify a predicate which is being translated into a SQL expression. The arguments in the lambda expression are added as parameters to the command.
+#### Selecting some entities
 ```csharp
-using (var con = new SqlConnection())
-{
-   var products = con.Select<Product>(p => p.Name == "Awesome bike");
-   
-   var products = con.Select<Product>(p => p.Created < new DateTime(2014, 12, 31) && p.InStock > 5);
-}
+var products = db.Products.WhereIn("id", new int[]{3,4,5}).All();
+// 和下面的查询等价：
+var same_products = db.Products.WhereRaw("id IN (?,?,?)",3,4,5).All();
 ```
 
 #### Inserting entities
 ```csharp
-using (var con = new SqlConnection())
-{
-   var product = new Product { Name = "Awesome bike", InStock = 4 };
-   int id = con.Insert(product);
-}
+var product = new Product { Name = "Awesome bike", InStock = 4 };
+int id = db.Conn.Insert(product);
 ```
 ```csharp
-using (var con = new SqlConnection())
+var products = new List<Product>
 {
-   var products =new List<Product>
-   {
-        new Product { Name = "Awesome bike", InStock = 4 },
-        new Product { Name = "Awesome bike 2", InStock = 5 }
-   };
+    new Product { Name = "Awesome bike", InStock = 4 },
+    new Product { Name = "Awesome bike 2", InStock = 5 }
+};
 
-   int count = con.Insert(products);
-}
+int count = db.Conn.Insert(products);
 ```
 #### Updating entities
 ```csharp
-using (var con = new SqlConnection())
-{
-   var product = con.Get<Product>(1);
-   product.LastUpdate = DateTime.Now;
-   con.Update(product);
-}
+var product = db.Products.Get(1);
+product.LastUpdate = DateTime.Now;
+db.Conn.Update(product);
 ```
 ```csharp
-using (var con = new SqlConnection())
-{
-   var products = con.Select<Product>(p=>p.Id==1 || p.Id==2).ToList();
-   products[0].LastUpdate = DateTime.Now;
-   products[1].LastUpdate = DateTime.Now;
-   con.Update(products);
-}
+var products = db.Products.WhereIn("id", new int[]{1,2}).All().ToList();
+products[0].LastUpdate = DateTime.Now;
+products[1].LastUpdate = DateTime.Now;
+db.Conn.Update(products);
 ```
 #### Removing entities
 ```csharp
-using (var con = new SqlConnection())
-{
-   var product = con.Get<Product>(1);
-   con.Delete(product);
-}
+var product = db.Products.Get(1);
+db.Conn.Delete(product);
 ```
 ```csharp
-using (var con = new SqlConnection())
-{
-   var products = con.Select<Product>(p=>p.Id==1 || p.Id==2);
-   con.Delete(products);
-}
+var products = db.Products.WhereIn("id", new int[]{1,2}).All();
+db.Conn.Delete(products);
 ```
-<hr>
-
-## Query builders
-
-Dubon supports building specialized queries for a certain RDBMS. By default, query builders for the following RDMBS are included: SQL Server, SQL Server CE, SQLite, MySQL and Postgres. The query builder to be used is determined by the connection type. To add or overwrite an existing query builder, use the `AddSqlBuilder()`  method:
-
-```csharp
-DubonMapper.AddSqlBuilder(typeof(SqlConnection), new CustomSqlBuilder());
-```
-
 <hr>
 
 ## Extensibility
 #### `ITableNameResolver`
-Implement this interface if you want to customize the resolving of table names when building SQL queries.
 ```csharp
+// 根据 Model 类名对应表名，比如 Area 的表名为 t_areas
 public class CustomTableNameResolver : ITableNameResolver
 {
-    public string ResolveTableName(Type type)
+    public string Resolve(Type type)
     {
-        // Every table has prefix 'tbl'.
-        return $"tbl{type.Name}";
+        var lower = type.Name.ToLower();
+        return $"t_{lower}s";
     }
 }
 ```
 
-Use the `SetTableNameResolver()` method to register the custom implementation:
+Register the custom implementation:
 ```csharp
-DubonMapper.SetTableNameResolver(new CustomTableNameResolver());
-```
-
-#### `IKeyPropertyResolver`
-Implement this interface if you want to customize the resolving of the key property of an entity. By default, Dubon will search for a property with the `[Key]` attribute, or a column with the name 'Id'.
-
-If you, for example, have the naming convention of `{TypeName}Id` for key properties, you would implement the `IKeyPropertyResolver` like this:
-```csharp
-public class CustomKeyPropertyResolver : IKeyPropertyResolver
-{
-    public PropertyInfo ResolveKeyProperty(Type type)
-    {
-        return type.GetProperties().Single(p => p.Name == $"{type.Name}Id");
-    }
-}
-```
-
-Use the `SetKeyPropertyResolver()` method to register the custom implementation:
-```csharp
-DubonMapper.SetKeyPropertyResolver(new CustomKeyPropertyResolver());
+db.NameResolver = new CustomTableNameResolver();
 ```
 
 #### `IColumnNameResolver`
-Implement this interface if you want to customize the resolving of column names for when building SQL queries. This is useful when your naming conventions for database columns are different than your POCO properties.
-
 ```csharp
+// 根据 Model 成员名找出表中字段名称，比如 AreaCode 的段名为 area_code
 public class CustomColumnNameResolver : IColumnNameResolver
 {
-    public string ResolveColumnName(DubonProperty property)
+    public string Resolve(DubonProperty info)
     {
-        // Every column has prefix 'fld' and is uppercase.
-        return $"fld{property.Name.ToUpper()}";
+        var re = new Regex(@"([A-Z])([A-Z][a-z])|([a-z0-9])([A-Z])");
+        return re.Replace(info.Name, @"$1$3_$2$4").ToLower();
     }
 }
 ```
-
-Use the `SetColumnNameResolver()` method to register the custom implementation:
-```csharp
-DubonMapper.SetColumnNameResolver(new CustomColumnNameResolver());
-
-```csharp
-public class ProductMap : DubonEntityMap<T>
-{
-    public ProductMap()
-    {
-        ToTable("tblProduct");
-        
-        // ...
-    }
-}
-```
-
-##### `DubonPropertyMap<T>`
-This class derives `PropertyMap<T>` and allows you to specify the key property of an entity using the `IsKey` method:
-
-```csharp
-public class ProductMap : DubonEntityMap<T>
-{
-    public ProductMap()
-    {
-        Map(p => p.Id).IsKey();
-    }
-}
-```
-In the `FluentMapper.Initialize()` method you have to call ApplyToDubon() in order to tell Dubon to use fluent mapping:
-
-```csharp
-FluentMapper.Initialize(config =>
-    {
-        config.AddMap(new ProductMap());
-        config.ApplyToDubon();
-    });
-```
-
