@@ -1,4 +1,4 @@
-﻿namespace Dubonnet.Abstractions
+namespace Dubonnet.Abstractions
 { 
         /// <summary>
         /// Describes a foreign key relationship.

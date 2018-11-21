@@ -1,7 +1,8 @@
 # Dubonnet
-A .NET Core v2.1 ORM that runs on Dapper.
+A .NET Core v2.x ORM that runs on Dapper.
 
-[![NuGet](https://img.shields.io/nuget/dt/Microsoft.AspNetCore.Mvc.svg)](https://www.nuget.org/packages/Dubonnet/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Dubonnet.svg)](https://www.nuget.org/packages/Dubonnet/)
+
 
 下载 [NuGet](https://www.nuget.org/packages/Dubonnet):
 
@@ -26,9 +27,9 @@ cd MyDubon
 dotnet add package MySqlConnector
 dotnet add package Dapper
 dotnet add package Dubonnet
-dotnet add package Dubonnet.QueryBuilder
 ```
 3. 创建 MySQL 数据库，修改配置文件 appsettings.json 增加数据库连接
+
 ```json
 {
   "Logging": {
@@ -47,59 +48,55 @@ dotnet add package Dubonnet.QueryBuilder
 ```bash
 #复制 Dubonnet/src/Example/Models/ 下的这两个文件复制过来，
 #并将 namespace 从 Dubonnet.Example 改为 MyDubon
+#在 AppDbContext.cs 中 namespace 上面增加代码 using Dubonnet;
 ```
 修改 Startup.cs 中 ConfigureServices() 增加依赖注入
 ```csharp
-// 其他代码 ...
-
-namespace MyDubon
-{
+	using MyDubon.Models;
+	// 其他代码 ...
+	
     public class Startup
     {
-    	// 其他代码 ...
-    	
+    // 其他代码 ...
+    
 		public void ConfigureServices(IServiceCollection services)
 		{
 			var dsnMySql = Configuration.GetConnectionString("DefaultConnection");
 			services.AddSingleton(new AppDbContext(dsnMySql));
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		}
-		
-		// 其他代码 ...
+	
+	// 其他代码 ...
 	}
-}
 ```
 
 5. 对 Controllers/ValuesController.cs 作如下修改
 ```csharp
-// 其他代码 ...
-
-namespace MyDubon.Controllers
-{
+	using MyDubon.Models;
+    // 其他代码 ...
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
     {
-		private readonly AppDbContext db;
-		
-		public ValuesController(AppDbContext db)
-		{
-		    this.db = db;
-		}
-		
-		// GET api/values
-		[HttpGet]
-		public ActionResult<IEnumerable<string>> Get()
-		{
-		    var queryArea = db.Areas.Where("areacode", "0755");
-		    var area = queryArea.First<Area>();
-		    return new string[] { area.province, area.city };
-		    //return new string[] { "value1", "value2" };
-		}
-		
-		// 其他代码 ...
-	}
-}
+        private readonly AppDbContext db;
+        		
+        public ValuesController(AppDbContext db)
+        {
+            this.db = db;
+        }
+        
+        // GET api/values
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            var area = db.Areas.Where("areacode", "0755").Get();
+            return new string[] { area.province, area.city };
+            //return new string[] { "value1", "value2" };
+        }
+
+        // 其他代码 ...
+    }
 ```
 
 <hr>

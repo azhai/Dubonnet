@@ -1,4 +1,4 @@
-﻿namespace Dubonnet.QueryBuilder.Compilers.Bindings
+namespace Dubonnet.QueryBuilder.Compilers.Bindings
 {
     public interface ISqlResultBinder<Q> where Q : QueryBase<Q>
     {

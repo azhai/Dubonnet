@@ -1,4 +1,4 @@
-﻿namespace Dubonnet.Abstractions
+namespace Dubonnet.Abstractions
 {
    
         /// <summary>

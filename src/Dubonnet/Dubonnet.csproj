@@ -1,32 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <BuildPackage>true</BuildPackage>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Description>Simple CRUD operations for Dapper.</Description>
-    <Copyright>Copyright © Getson Cela, Edmond Shtogu, Ryan Liu  2018</Copyright>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
-    <VersionPrefix>2.0.0</VersionPrefix>
-    <Authors>Getson Cela, Edmond Shtogu, Ryan Liu</Authors>
-    <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>nona;crud;dapper;database;orm;DapperDubon;DapperMagic;DapperOrm</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <DebugType>full</DebugType>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <AssemblyName>Dubonnet</AssemblyName>
     <RootNamespace>Dubonnet</RootNamespace>
     <PackageId>Dubonnet</PackageId>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Product>Dubonnet</Product>
     <RepositoryUrl>https://github.com/azhai/Dubonnet</RepositoryUrl>
     <PackageProjectUrl>https://github.com/azhai/Dubonnet</PackageProjectUrl>
-    <Version>2.0.0</Version>
-    <Product>Dubonnet</Product>
+    <PackageTags>dubonnet;database;orm</PackageTags>
+    <Description>A .NET Core v2.x ORM that runs on Dapper.</Description>
+    <Copyright>Copyright © Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu 2018</Copyright>
+    <Authors>Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu</Authors>
+    <Version>2.1.1</Version>
+    <FileVersion>2.1.1</FileVersion>
+    <AssemblyVersion>2.1.1</AssemblyVersion>
+    <VersionPrefix>2.1.1</VersionPrefix>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RepositoryType>git</RepositoryType>
+    <DebugType>full</DebugType>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Change the namespace</PackageReleaseNotes>
-    <FileVersion>2.0.0</FileVersion>
-    <Company>Getson Cela, Edmond Shtogu, Ryan Liu</Company>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
-    <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -36,6 +33,5 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
-    <ProjectReference Include="..\QueryBuilder\QueryBuilder.csproj" />
   </ItemGroup>
 </Project>

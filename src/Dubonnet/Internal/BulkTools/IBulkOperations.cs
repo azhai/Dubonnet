@@ -1,4 +1,4 @@
-﻿using System.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Dubonnet.Internal.BulkTools

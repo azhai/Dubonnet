@@ -1,4 +1,4 @@
-﻿using Dubonnet.Abstractions;
+using Dubonnet.Abstractions;
 
 namespace Dubonnet.Internal
 {

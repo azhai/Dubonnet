@@ -1,6 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
+using Dubonnet;
 using Dubonnet.Abstractions;
 
 namespace Dubonnet.Example.Models

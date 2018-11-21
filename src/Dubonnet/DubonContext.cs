@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Data;
-using System.Data.Common;
 using Dubonnet.Abstractions;
 using Dubonnet.Resolvers;
 
