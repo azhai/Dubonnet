@@ -4,6 +4,11 @@ using Dapper;
 
 namespace Dubonnet
 {
+    public class InsertGetIdRow<T>
+    {
+        public T Id { get; set; }
+    }
+
     /// <summary>
     /// A database query of type <typeparamref name="M"/>.
     /// </summary>
@@ -162,6 +167,87 @@ namespace Dubonnet
                 }
             }
             return page; // Max page no
+        }
+
+        /// <summary>
+        /// Insert into.
+        /// </summary>
+        public T InsertGetId<T>(object data)
+        {
+            AsInsert(data);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            var row = db.Conn.QueryFirst<InsertGetIdRow<T>>(sql, dict);
+            return row.Id;
+        }
+
+        /// <summary>
+        /// Insert into.
+        /// </summary>
+        public int Insert(object data)
+        {
+            AsInsert(data);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Insert into.
+        /// </summary>
+        public int Insert(IReadOnlyDictionary<string, object> values)
+        {
+            AsInsert(values);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Insert into.
+        /// </summary>
+        public int Insert(IEnumerable<string> columns, IEnumerable<IEnumerable<object>> valuesCollection)
+        {
+            AsInsert(columns, valuesCollection);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Insert into.
+        /// </summary>
+        public int Insert(IEnumerable<string> columns, DubonQuery<M> fromQuery)
+        {
+            AsInsert(columns, fromQuery);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Update.
+        /// </summary>
+        public int Update(object data)
+        {
+            AsUpdate(data);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Update.
+        /// </summary>
+        public int Update(IReadOnlyDictionary<string, object> values)
+        {
+            AsUpdate(values);
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
+        }
+
+        /// <summary>
+        /// Delete.
+        /// </summary>
+        public int Delete()
+        {
+            AsDelete();
+            var (sql, dict) = instance.CompileSql(db.Log);
+            return db.Conn.ExecuteScalar<int>(sql, dict);
         }
     }
 }

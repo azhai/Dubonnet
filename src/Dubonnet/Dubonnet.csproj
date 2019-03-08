@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <BuildPackage>true</BuildPackage>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
     <AssemblyName>Dubonnet</AssemblyName>
     <RootNamespace>Dubonnet</RootNamespace>
@@ -13,9 +13,9 @@
     <Description>A .NET Core v2.x ORM that runs on Dapper.</Description>
     <Copyright>Copyright © Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu 2018</Copyright>
     <Authors>Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu</Authors>
-    <Version>2.1.1</Version>
-    <FileVersion>2.1.1</FileVersion>
-    <AssemblyVersion>2.1.1</AssemblyVersion>
+    <Version>2.1.2</Version>
+    <FileVersion>2.1.2</FileVersion>
+    <AssemblyVersion>2.1.2</AssemblyVersion>
     <VersionPrefix>2.1.1</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -24,6 +24,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <ApplicationIcon>dubonnet.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -31,7 +32,7 @@
     <None Remove="Internal\BulkTools\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Dapper" Version="1.60.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 </Project>
