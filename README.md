@@ -14,7 +14,7 @@ Thanks to
 
 ## Example
 
-1. 安装 .NET Core v2.1 版本
+1. 安装 .NET Core v2.x 版本
 
 2. 在命令行下以 webapi 为模板创建新项目
 ```bash
@@ -24,9 +24,9 @@ cd MyDubon
 ```
 并安装相关的依赖库
 ```bash
-dotnet add package MySqlConnector
-dotnet add package Dapper
-dotnet add package Dubonnet
+dotnet add package MySqlConnector --version 0.49.3
+dotnet add package Dubonnet --version 1.50.5
+dotnet add package Dapper --version 2.1.1
 ```
 3. 创建 MySQL 数据库，修改配置文件 appsettings.json 增加数据库连接
 
@@ -69,6 +69,19 @@ dotnet add package Dubonnet
 	// 其他代码 ...
 	}
 ```
+（可选）对 Program.cs 作如下修改，自定义网址
+```csharp
+// 其他代码 ...
+	
+    public class Program
+    {
+    // 其他代码 ...
+    
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://127.0.0.1:5001")
+                .UseStartup<Startup>();
+```
 
 5. 对 Controllers/ValuesController.cs 作如下修改
 ```csharp
@@ -98,6 +111,7 @@ dotnet add package Dubonnet
         // 其他代码 ...
     }
 ```
+
 
 <hr>
 
