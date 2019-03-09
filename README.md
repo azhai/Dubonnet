@@ -137,7 +137,7 @@ var same_products = db.Products.WhereRaw("id IN (?,?,?)",3,4,5).All();
 #### Inserting entities
 ```csharp
 var product = new Product { Name = "Awesome bike", InStock = 4 };
-int id = db.Conn.Insert(product);
+int id = db.Products.Insert(product);
 ```
 ```csharp
 var products = new List<Product>
@@ -146,28 +146,28 @@ var products = new List<Product>
     new Product { Name = "Awesome bike 2", InStock = 5 }
 };
 
-int count = db.Conn.Insert(products);
+int count = db.Products.Insert(products);
 ```
 #### Updating entities
 ```csharp
 var product = db.Products.Get(1);
 product.LastUpdate = DateTime.Now;
-db.Conn.Update(product);
+db.Products.Update(product);
 ```
 ```csharp
 var products = db.Products.WhereIn("id", new int[]{1,2}).All().ToList();
 products[0].LastUpdate = DateTime.Now;
 products[1].LastUpdate = DateTime.Now;
-db.Conn.Update(products);
+db.Products.Update(products);
 ```
 #### Removing entities
 ```csharp
 var product = db.Products.Get(1);
-db.Conn.Delete(product);
+db.Products.Delete(product);
 ```
 ```csharp
 var products = db.Products.WhereIn("id", new int[]{1,2}).All();
-db.Conn.Delete(products);
+db.Products.Delete(products);
 ```
 <hr>
 
