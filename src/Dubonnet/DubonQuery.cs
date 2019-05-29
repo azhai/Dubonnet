@@ -55,6 +55,14 @@ namespace Dubonnet
             {
                 query.From(tableName);
             }
+            foreach (var c in query.GetComponents("where"))
+            {
+                query.AddComponent("where", c);
+            }
+            foreach (var c in query.GetComponents("select"))
+            {
+                query.AddComponent("select", c);
+            }
             return query;
         }
         

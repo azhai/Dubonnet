@@ -11,7 +11,7 @@ namespace Dubonnet
 {
     public class TableSchema
     {
-        public string TABLE_SCHEMA;
+        public string DB_NAME;
         public string TABLE_NAME;
         public long TABLE_ROWS;
         public long AUTO_INCREMENT;
@@ -19,7 +19,7 @@ namespace Dubonnet
     
     public class TableColumn
     {
-        public string TABLE_SCHEMA;
+        public string DB_NAME;
         public string TABLE_NAME;
         public string COLUMN_NAME;
         public string COLUMN_TYPE;
@@ -54,7 +54,34 @@ namespace Dubonnet
                 return name;
             }
         }
-
+        
+        /// <summary>
+        /// The name of db driver.
+        /// </summary>
+        /// <returns>The driver name.</returns>
+        public string DriverType
+        {
+            get
+            {
+                var driver = db.GetDriverName().ToLower();
+                if (driver.Contains("mysql")) {
+                    return "mysql";
+                } else if (driver.Contains("pgsql")) {
+                    return "pgsql";
+                } else if (driver.Contains("sqlite")) {
+                    return "sqlite";
+                } else if (driver.Contains("mssql")) {
+                    return "sqlserver";
+                } else if (driver.Contains("sqlserver")) {
+                    return "sqlserver";
+                } else if (driver.Contains("sqlclient")) {
+                    return "sqlserver";
+                } else {
+                    return "unknow";
+                }
+            }
+        }
+        
         /// <summary>
         /// Creates a table in the specified database with a given name.
         /// </summary>
@@ -64,31 +91,57 @@ namespace Dubonnet
         {
             instance = this;
             db = dbCxt;
-            EngineScope = db.GetDriverName().Split(".")[0].ToLower();
+            EngineScope = DriverType;
             name = tableName;
             From(CurrentName);
         }
         
         public IEnumerable<TableSchema> GetTables(string tableName, bool isDesc = false)
         {
-            var rawSql = "SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_ROWS,AUTO_INCREMENT"
-                      + " FROM `information_schema`.TABLES WHERE TABLE_SCHEMA=DATABASE()"
-                      + " AND TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+            var name = tableName + "%";
+            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+            switch (DriverType) {
+                case "sqlserver":
+                    rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME"
+                             + " FROM [INFORMATION_SCHEMA].TABLES"
+                             + " WHERE TABLE_CATALOG=DB_NAME() AND TABLE_SCHEMA='dbo'"
+                             + " AND TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+                    break;
+                case "mysql":
+                    name = tableName.Replace("_", "\\_") + "%";
+                    rawSql = "SELECT TABLE_SCHEMA as DB_NAME,TABLE_NAME,TABLE_ROWS,AUTO_INCREMENT"
+                             + " FROM `information_schema`.TABLES"
+                             + " WHERE TABLE_SCHEMA=DATABASE()"
+                             + " AND TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+                    break;
+            }
             if (isDesc)
             {
                 rawSql += " DESC";
             }
-            var name = tableName.Replace("_", "\\_") + "%";
             var (sql, dict) = instance.CompileSql(rawSql, new object[]{name}, db.Log);
             return db.Conn.Query<TableSchema>(sql, dict);
         }
         
         public IEnumerable<TableColumn> GetColumns(string tableName)
         {
-            var rawSql = "SELECT TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,DATA_TYPE"
-                      + "COLUMN_DEFAULT,IS_NULLABLE,COLUMN_KEY,EXTRA,ORDINAL_POSITION"
-                      + " FROM `information_schema`.COLUMNS WHERE TABLE_SCHEMA=DATABASE()"
-                      + " AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
+            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=?";
+            switch (DriverType) {
+                case "sqlserver":
+                    rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME,COLUMN_NAME,DATA_TYPE,"
+                             + "COLUMN_DEFAULT,IS_NULLABLE,ORDINAL_POSITION"
+                             + " FROM [INFORMATION_SCHEMA].COLUMNS"
+                             + " WHERE TABLE_CATALOG=DB_NAME() AND TABLE_SCHEMA='dbo'"
+                             + " AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
+                    break;
+                case "mysql":
+                    rawSql = "SELECT TABLE_SCHEMA as DB_NAME,TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,DATA_TYPE,"
+                             + "COLUMN_DEFAULT,IS_NULLABLE,COLUMN_KEY,EXTRA,ORDINAL_POSITION"
+                             + " FROM `information_schema`.COLUMNS"
+                             + " WHERE TABLE_SCHEMA=DATABASE()"
+                             + " AND TABLE_NAME=? ORDER BY ORDINAL_POSITION";
+                    break;
+            }
             var (sql, dict) = instance.CompileSql(rawSql, new object[]{tableName}, db.Log);
             return db.Conn.Query<TableColumn>(sql, dict);
         }
