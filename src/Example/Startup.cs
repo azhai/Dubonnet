@@ -1,9 +1,12 @@
+using System.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Data.SqlClient;  // MS SQLServer
+using MySql.Data.MySqlClient; // MySQL/MariaDB
 using StackExchange.Redis;
 using Dubonnet.Example.Models;
 
@@ -27,10 +30,16 @@ namespace Dubonnet.Example
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
-            var dsnMySql = Configuration.GetConnectionString("DefaultConnection");
-            services.AddSingleton(new AppDbContext(dsnMySql));
-            var dsnRedis = Configuration.GetConnectionString("RedisConnection");
+            IDbConnection conn;
+            var connName = Configuration.GetConnectionString("ConnName");
+            if (connName.ToLower() == "mysql")
+            {
+                conn = new MySqlConnection(Configuration.GetConnectionString(connName));
+            } else {
+                conn = new SqlConnection(Configuration.GetConnectionString(connName));
+            }
+            services.AddSingleton(new AppDbContext(conn));
+            var dsnRedis = Configuration.GetConnectionString("Redis");
             services.AddSingleton(ConnectionMultiplexer.Connect(dsnRedis));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

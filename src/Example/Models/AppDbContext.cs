@@ -1,20 +1,18 @@
 using System;
 using System.Text.RegularExpressions;
-using MySql.Data.MySqlClient;
-using Dubonnet;
+using System.Data;
 using Dubonnet.Abstractions;
 
 namespace Dubonnet.Example.Models
 {
     public class AppDbContext : DubonContext
     {
-        public AppDbContext(string dsn)
-            : base(new MySqlConnection(dsn), new CustomTableNameResolver())
+        public AppDbContext(IDbConnection conn) : base(conn, new CustomTableNameResolver())
         {
             InitAllTables();
         }
 
-        public DubonQuery<Area> Areas => InitTable<Area>();
+        public DubonQuery<City> Cities => InitTable<City>();
         public DubonQuery<Mobile> Mobiles => InitTable<Mobile>("t_mobile_");
     }
 }
@@ -24,7 +22,7 @@ public class CustomTableNameResolver : ITableNameResolver
     public string Resolve(Type type)
     {
         var lower = type.Name.ToLower();
-        return $"t_{lower}s";
+        return $"t_{lower}";
     }
 }
 

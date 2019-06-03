@@ -27,6 +27,7 @@ namespace Dubonnet.QueryBuilder.Compilers
             }
 
             factory = factory.Clone() as Q;
+            //TODO: copy wheres
 
             var ctx = new SqlResult<Q>
             {

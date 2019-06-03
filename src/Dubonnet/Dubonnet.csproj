@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <BuildPackage>true</BuildPackage>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
     <AssemblyName>Dubonnet</AssemblyName>
     <RootNamespace>Dubonnet</RootNamespace>
@@ -25,6 +24,13 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <ApplicationIcon>dubonnet.ico</ApplicationIcon>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -32,7 +38,7 @@
     <None Remove="Internal\BulkTools\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.1" />
+    <PackageReference Include="Dapper" Version="1.60.9" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 </Project>
