@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/azhai/Dubonnet</RepositoryUrl>
     <PackageProjectUrl>https://github.com/azhai/Dubonnet</PackageProjectUrl>
     <PackageTags>dubonnet;database;orm</PackageTags>
-    <Description>A .NET Core v2.x ORM that runs on Dapper.</Description>
+    <Description>A .NET Standrad 2.0 ORM that runs on Dapper.</Description>
     <Copyright>Copyright © Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu 2018</Copyright>
     <Authors>Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu</Authors>
     <Version>2.1.2</Version>
@@ -25,6 +25,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <ApplicationIcon>dubonnet.ico</ApplicationIcon>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageVersion>2.2.0-b1</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>x64</PlatformTarget>

@@ -64,18 +64,20 @@ namespace Dubonnet
             get
             {
                 var driver = db.GetDriverName().ToLower();
-                if (driver.Contains("mysql")) {
+                if (driver.Contains("mysql") || driver.Contains("mariadb")) {
                     return "mysql";
-                } else if (driver.Contains("pgsql")) {
+                } else if (driver.Contains("percona") || driver.Contains("xtradb")) {
+                    return "mysql";
+                } else if (driver.Contains("pgsql") || driver.Contains("postgresql")) {
                     return "pgsql";
                 } else if (driver.Contains("sqlite")) {
                     return "sqlite";
-                } else if (driver.Contains("mssql")) {
-                    return "sqlserver";
-                } else if (driver.Contains("sqlserver")) {
-                    return "sqlserver";
-                } else if (driver.Contains("sqlclient")) {
-                    return "sqlserver";
+                } else if (driver.Contains("sqlclient") || driver.Contains("mssql")) {
+                    return "sqlsrv";
+                } else if (driver.Contains("sqlsrv") || driver.Contains("sqlserver")) {
+                    return "sqlsrv";
+                } else if (driver.Contains("oracle")) {
+                    return "oracle";
                 } else {
                     return "unknow";
                 }
@@ -101,7 +103,7 @@ namespace Dubonnet
             var name = tableName + "%";
             var rawSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
             switch (DriverType) {
-                case "sqlserver":
+                case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME"
                              + " FROM [INFORMATION_SCHEMA].TABLES"
                              + " WHERE TABLE_CATALOG=DB_NAME() AND TABLE_SCHEMA='dbo'"
@@ -127,7 +129,7 @@ namespace Dubonnet
         {
             var rawSql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=?";
             switch (DriverType) {
-                case "sqlserver":
+                case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME,COLUMN_NAME,DATA_TYPE,"
                              + "COLUMN_DEFAULT,IS_NULLABLE,ORDINAL_POSITION"
                              + " FROM [INFORMATION_SCHEMA].COLUMNS"

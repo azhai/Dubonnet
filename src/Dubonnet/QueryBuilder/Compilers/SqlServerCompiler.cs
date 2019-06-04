@@ -27,7 +27,6 @@ namespace Dubonnet.QueryBuilder.Compilers
             }
 
             factory = factory.Clone() as Q;
-            //TODO: copy wheres
 
             var ctx = new SqlResult<Q>
             {
@@ -46,8 +45,7 @@ namespace Dubonnet.QueryBuilder.Compilers
             factory.SelectRaw($"ROW_NUMBER() OVER ({order}) AS [row_num]", ctx.Bindings);
 
             factory.ClearComponent("order");
-
-
+            
             var result = base.CompileSelectQuery(factory);
 
             if (limit == 0)

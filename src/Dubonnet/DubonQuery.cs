@@ -49,7 +49,7 @@ namespace Dubonnet
         {
             var query = base.Clone();
             query.db = db;
-            query.tableCounts = tableCounts;
+            query.tableCounter = tableCounter;
             query.tableFilter = tableFilter;
             if (tableName != "")
             {
