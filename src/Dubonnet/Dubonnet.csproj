@@ -25,13 +25,13 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <ApplicationIcon>dubonnet.ico</ApplicationIcon>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageVersion>2.2.0-b1</PackageVersion>
+    <PackageVersion>2.2.0-b6</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -39,7 +39,7 @@
     <None Remove="Internal\BulkTools\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.9" />
+    <PackageReference Include="Dapper" Version="1.60.6" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 </Project>

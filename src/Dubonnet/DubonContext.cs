@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using Dubonnet.Abstractions;
 using Dubonnet.Resolvers;
@@ -14,11 +15,43 @@ namespace Dubonnet
         protected IDbConnection _connection;
         public ITableNameResolver NameResolver;
         public IColumnNameResolver ColumnResolver;
+
+        public IDbConnection Conn => _connection;
+        
+        public DubonSchema Schema => new DubonSchema(this);
+        
         public Action<string> Log = sql => {
             Console.WriteLine(sql + ";");
         };
-
-        public IDbConnection Conn => _connection;
+        
+        /// <summary>
+        /// The name of db driver.
+        /// </summary>
+        /// <returns>The driver name.</returns>
+        public string DriverType
+        {
+            get
+            {
+                var driver = GetDriverName().ToLower();
+                if (driver.Contains("mysql") || driver.Contains("mariadb")) {
+                    return "mysql";
+                } else if (driver.Contains("percona") || driver.Contains("xtradb")) {
+                    return "mysql";
+                } else if (driver.Contains("pgsql") || driver.Contains("postgresql")) {
+                    return "pgsql";
+                } else if (driver.Contains("sqlite")) {
+                    return "sqlite";
+                } else if (driver.Contains("sqlclient") || driver.Contains("mssql")) {
+                    return "sqlsrv";
+                } else if (driver.Contains("sqlsrv") || driver.Contains("sqlserver")) {
+                    return "sqlsrv";
+                } else if (driver.Contains("oracle")) {
+                    return "oracle";
+                } else {
+                    return "unknow";
+                }
+            }
+        }
 
         public DubonContext(IDbConnection connection, ITableNameResolver resolver = null)
         {
