@@ -35,7 +35,6 @@ namespace Dubonnet.QueryBuilder
         {
             return instance.AsAggregate("avg", column);
         }
-        
         public Q AsAverage(string column)
         {
             return instance.AsAvg(column);

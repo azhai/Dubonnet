@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using Dapper;
-using Dubonnet.QueryBuilder;
 using Dubonnet.Attributes;
 
 namespace Dubonnet
@@ -31,84 +30,26 @@ namespace Dubonnet
         public long ORDINAL_POSITION;
     }
 
-    public partial class DubonQuery<M> : QueryFactory<DubonQuery<M>>
+    public partial class DubonQuery<M>
     {
+        public static readonly ConcurrentDictionary<string, List<string>>
+            tableNameCache = new ConcurrentDictionary<string, List<string>>();
         public static readonly ConcurrentDictionary<Type, List<string>> 
             paramNameCache = new ConcurrentDictionary<Type, List<string>>();
-        public DubonContext db { get; set; }
-        protected string name = "";
-        protected string pkey = "";
-        
-        /// <summary>
-        /// The name of table.
-        /// </summary>
-        /// <returns>The table name.</returns>
-        public string CurrentName
-        {
-            get
-            {
-                if (name == "")
-                {
-                    name = db.NameResolver.Resolve(typeof(M));
-                }
-                return name;
-            }
-        }
-        
-        /// <summary>
-        /// The name of db driver.
-        /// </summary>
-        /// <returns>The driver name.</returns>
-        public string DriverType
-        {
-            get
-            {
-                var driver = db.GetDriverName().ToLower();
-                if (driver.Contains("mysql")) {
-                    return "mysql";
-                } else if (driver.Contains("pgsql")) {
-                    return "pgsql";
-                } else if (driver.Contains("sqlite")) {
-                    return "sqlite";
-                } else if (driver.Contains("mssql")) {
-                    return "sqlserver";
-                } else if (driver.Contains("sqlserver")) {
-                    return "sqlserver";
-                } else if (driver.Contains("sqlclient")) {
-                    return "sqlserver";
-                } else {
-                    return "unknow";
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Creates a table in the specified database with a given name.
-        /// </summary>
-        /// <param name="dbCxt">The database.</param>
-        /// <param name="tableName">The name for this table.</param>
-        public DubonQuery(DubonContext dbCxt, string tableName = "") : base()
-        {
-            instance = this;
-            db = dbCxt;
-            EngineScope = DriverType;
-            name = tableName;
-            From(CurrentName);
-        }
         
         public IEnumerable<TableSchema> GetTables(string tableName, bool isDesc = false)
         {
             var name = tableName + "%";
             var rawSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
-            switch (DriverType) {
-                case "sqlserver":
+            switch (db.DriverType) {
+                case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME"
                              + " FROM [INFORMATION_SCHEMA].TABLES"
                              + " WHERE TABLE_CATALOG=DB_NAME() AND TABLE_SCHEMA='dbo'"
                              + " AND TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
                     break;
                 case "mysql":
-                    name = tableName.Replace("_", "\\_") + "%";
+                    name = name.Replace("_", "\\_");
                     rawSql = "SELECT TABLE_SCHEMA as DB_NAME,TABLE_NAME,TABLE_ROWS,AUTO_INCREMENT"
                              + " FROM `information_schema`.TABLES"
                              + " WHERE TABLE_SCHEMA=DATABASE()"
@@ -126,8 +67,8 @@ namespace Dubonnet
         public IEnumerable<TableColumn> GetColumns(string tableName)
         {
             var rawSql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=?";
-            switch (DriverType) {
-                case "sqlserver":
+            switch (db.DriverType) {
+                case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG as DB_NAME,TABLE_NAME,COLUMN_NAME,DATA_TYPE,"
                              + "COLUMN_DEFAULT,IS_NULLABLE,ORDINAL_POSITION"
                              + " FROM [INFORMATION_SCHEMA].COLUMNS"
@@ -144,6 +85,20 @@ namespace Dubonnet
             }
             var (sql, dict) = instance.CompileSql(rawSql, new object[]{tableName}, db.Log);
             return db.Conn.Query<TableColumn>(sql, dict);
+        }
+
+        public List<string> ListTable(string name, bool refresh = false)
+        {
+            if (refresh || !tableNameCache.TryGetValue(name, out List<string> tables))
+            {
+                tables = new List<string>();
+                foreach (var s in GetTables(name))
+                {
+                    tables.Add(s.TABLE_NAME);
+                }
+                tableNameCache[name] = tables;
+            }
+            return tables;
         }
 
         /// <summary>

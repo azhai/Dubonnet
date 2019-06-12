@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using Dubonnet.Abstractions;
 using Dubonnet.Resolvers;
@@ -14,11 +15,46 @@ namespace Dubonnet
         protected IDbConnection _connection;
         public ITableNameResolver NameResolver;
         public IColumnNameResolver ColumnResolver;
+
+        public IDbConnection Conn => _connection;
+        
         public Action<string> Log = sql => {
             Console.WriteLine(sql + ";");
         };
-
-        public IDbConnection Conn => _connection;
+        
+        /// <summary>
+        /// The name of db driver.
+        /// </summary>
+        /// <returns>The driver name.</returns>
+        public string DriverType
+        {
+            get
+            {
+                var driver = GetDriverName().ToLower();
+                switch (true)
+                {
+                    case true when driver.Contains("mysql"): 
+                    case true when driver.Contains("mariadb"):
+                    case true when driver.Contains("percona"):
+                    case true when driver.Contains("xtradb"):
+                        return "mysql";
+                    case true when driver.Contains("pgsql"):
+                    case true when driver.Contains("postgresql"):
+                        return "pgsql";
+                    case true when driver.Contains("sqlite"):
+                        return "sqlite";
+                    case true when driver.Contains("sqlclient"):
+                    case true when driver.Contains("mssql"):
+                    case true when driver.Contains("sqlsrv"):
+                    case true when driver.Contains("sqlserver"):
+                        return "sqlsrv";
+                    case true when driver.Contains("oracle"):
+                        return "oracle";
+                    default:
+                        return "unknow";
+                }
+            }
+        }
 
         public DubonContext(IDbConnection connection, ITableNameResolver resolver = null)
         {

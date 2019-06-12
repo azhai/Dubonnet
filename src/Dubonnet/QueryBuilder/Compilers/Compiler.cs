@@ -141,7 +141,6 @@ namespace Dubonnet.QueryBuilder.Compilers
                .Where(x => x != null)
                .Where(x => !string.IsNullOrEmpty(x))
                .ToList();
-
             string sql = string.Join(" ", results);
 
             ctx.RawSql = sql;

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <BuildPackage>true</BuildPackage>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
     <AssemblyTitle>Dubonnet</AssemblyTitle>
     <AssemblyName>Dubonnet</AssemblyName>
     <RootNamespace>Dubonnet</RootNamespace>
@@ -10,7 +9,7 @@
     <RepositoryUrl>https://github.com/azhai/Dubonnet</RepositoryUrl>
     <PackageProjectUrl>https://github.com/azhai/Dubonnet</PackageProjectUrl>
     <PackageTags>dubonnet;database;orm</PackageTags>
-    <Description>A .NET Core v2.x ORM that runs on Dapper.</Description>
+    <Description>A .NET Standrad 2.0 ORM that runs on Dapper.</Description>
     <Copyright>Copyright © Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu 2018</Copyright>
     <Authors>Ryan Liu, Ahmad Moussawi, Chris Eastwood, Getson Cela, Edmond Shtogu</Authors>
     <Version>2.1.2</Version>
@@ -25,13 +24,14 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <ApplicationIcon>dubonnet.ico</ApplicationIcon>
-    <PackageVersion>2.1.5-beta2</PackageVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageVersion>2.2.0</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Internal\BulkTools\**" />
@@ -39,7 +39,7 @@
     <None Remove="Internal\BulkTools\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.1" />
+    <PackageReference Include="Dapper" Version="1.60.6" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 </Project>

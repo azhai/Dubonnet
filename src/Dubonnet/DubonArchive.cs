@@ -3,50 +3,114 @@ using System.Collections.Generic;
 using Dapper;
 
 namespace Dubonnet
-{ 
+{
+    public interface ITableCounter
+    {
+        void SetTableCount(string tableName, long count);
+        long GetTableCount(string tableName);
+        bool Contains(string tableName);
+        List<string> GetNames();
+    }
+
+    public class TableCountDict : ITableCounter
+    {
+        private SortedDictionary<string, long> tableCounts;
+
+        public TableCountDict()
+        {
+            tableCounts = new SortedDictionary<string, long>();
+        }
+
+        public void SetTableCount(string tableName, long count)
+        {
+            tableCounts[tableName] = count;
+        }
+
+        public long GetTableCount(string tableName)
+        {
+            return Contains(tableName) ? tableCounts[tableName] : -1;
+        }
+
+        public bool Contains(string tableName)
+        {
+            return tableCounts.ContainsKey(tableName);
+        }
+
+        public List<string> GetNames()
+        {
+            return tableCounts.Keys.AsList();
+        }
+    }
+
     /// <summary>
     /// A database query of archives or monthly.
     /// </summary>
     public partial class DubonQuery<M>
     {
-        protected Dictionary<string, long> tableCounts;
+        public const int COUMT_IS_EMPTY = -1;   // 尚未计数
+        public const int COUMT_IS_DYNAMIC = -2; // 不缓存计数
+
+        public bool IsTableNameDesc = false;
+        public ITableCounter tableCounter { get; set; }
         public Func<string, bool> tableFilter { get; set; }
 
-        protected List<string> filterShardingNames()
+        /// <summary>
+        /// 获取符合条件的表名，并统计每张表符合条件的行数
+        /// </summary>
+        /// <param name="reload">重新读取符合条件的表名</param>
+        /// <returns></returns>
+        protected List<string> filterShardingNames(bool reload = false)
         {
-            if (tableCounts == null)
+            List<string> tables;
+            if (reload || tableCounter == null)
             {
-                var tableName = "";
-                tableCounts = new Dictionary<string, long>();
-                foreach (var schema in GetTables(CurrentName))
+                tableCounter = new TableCountDict();
+                tables = new List<string>();
+                foreach (var tableName in ListTable(CurrentName))
                 {
-                    tableName = schema.TABLE_NAME;
                     if (tableFilter == null || tableFilter(tableName))
                     {
-                        tableCounts[tableName] = -1;
+                        tables.Add(tableName);
+                        tableCounter.SetTableCount(tableName, COUMT_IS_EMPTY);
                     }
                 }
             }
-            return tableCounts.Keys.AsList();
+            else
+            {
+                tables = tableCounter.GetNames();
+            }
+            if (IsTableNameDesc)
+            {
+                tables.Reverse();
+            }
+            return tables;
         }
         
+        /// <summary>
+        /// Count a table
+        /// </summary>
         protected long getShardingCount(string tableName, bool check = false)
         {
-            if (tableCounts == null)
-            {
-                filterShardingNames();
-            }
-            if (check && !tableCounts.ContainsKey(tableName))
+            if (check && !tableCounter.Contains(tableName))
             {
                 return 0;
             }
-            if (tableCounts[tableName] < 0)
+            var count = tableCounter.GetTableCount(tableName);
+            if (count < 0)
             {
-                tableCounts[tableName] = Clone(tableName).Count();
+                var oldCount = count;
+                count = Clone(tableName).Count();
+                if (COUMT_IS_EMPTY == oldCount)
+                {
+                    tableCounter.SetTableCount(tableName, count);
+                }
             }
-            return tableCounts[tableName];
+            return count;
         }
 
+        /// <summary>
+        /// Count all
+        /// </summary>
         public long CountSharding()
         {
             long count = 0;
@@ -60,34 +124,36 @@ namespace Dubonnet
         /// <summary>
         /// Select step by step.
         /// </summary>
-        public List<M> PaginateSharding(long page = 1, long size = 100)
+        public List<M> PaginateSharding(int page = 1, int size = 100, bool desc = false)
         {
+            if (page <= 0)
+            {
+                throw new ArgumentException("Param 'page' is out of range", nameof(page));
+            }
             if (size <= 0)
             {
                 throw new ArgumentException("Param 'size' should be greater than 0", nameof(size));
             }
-            var offset = (page - 1) * size;
-            if (offset < 0)
-            {
-                offset += CountSharding();
-            }
-            if (offset < 0)
-            {
-                throw new ArgumentException("Param 'page' is out of range", nameof(page));
-            }
-            
+
+            IsTableNameDesc = desc;
+            long offset = (page - 1) * size;
             var result = new List<M>();
             foreach (var tableName in filterShardingNames())
             {
-                From(tableName);
-                offset -= getShardingCount(tableName);
-                if (offset >= 0)
+                var count = getShardingCount(tableName);
+                if (offset >= count)
                 {
+                    offset -= count;
                     continue;
                 }
                 var remain = size - result.Count;
-                var rows = Clone().Limit((int)remain).All();
-                result.AddRange(rows);
+                var query = Clone(tableName).Limit(remain);
+                if (offset > 0)
+                {
+                    query.Offset((int)offset);
+                }
+                offset = 0; // 后续查询不需要偏移了
+                result.AddRange(query.All());
                 if (result.Count >= size)
                 {
                     break;

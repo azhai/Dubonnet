@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dapper;
+using Dubonnet.QueryBuilder;
 
 namespace Dubonnet
 {
@@ -13,8 +14,28 @@ namespace Dubonnet
     /// A database query of type <typeparamref name="M"/>.
     /// </summary>
     /// <typeparam name="M">The type of object in this table.</typeparam>
-    public partial class DubonQuery<M>
+    public partial class DubonQuery<M> : QueryFactory<DubonQuery<M>>
     {
+        public DubonContext db { get; set; }
+        protected string name = "";
+        protected string pkey = "";
+        
+        /// <summary>
+        /// The name of table.
+        /// </summary>
+        /// <returns>The table name.</returns>
+        public string CurrentName
+        {
+            get
+            {
+                if (name == "")
+                {
+                    name = db.NameResolver.Resolve(typeof(M));
+                }
+                return name;
+            }
+        }
+        
         /// <summary>
         /// The primary key of table.
         /// </summary>
@@ -29,6 +50,20 @@ namespace Dubonnet
                 }
                 return pkey;
             }
+        }
+
+        /// <summary>
+        /// Creates a table in the specified database with a given name.
+        /// </summary>
+        /// <param name="dbCxt">The database.</param>
+        /// <param name="tableName">The name for this table.</param>
+        public DubonQuery(DubonContext dbCxt, string tableName = "") : base()
+        {
+            instance = this;
+            db = dbCxt;
+            name = tableName;
+            EngineScope = db.DriverType;
+            From(CurrentName);
         }
         
         /// <summary>
@@ -49,19 +84,11 @@ namespace Dubonnet
         {
             var query = base.Clone();
             query.db = db;
-            query.tableCounts = tableCounts;
+            query.tableCounter = tableCounter;
             query.tableFilter = tableFilter;
             if (tableName != "")
             {
                 query.From(tableName);
-            }
-            foreach (var c in query.GetComponents("where"))
-            {
-                query.AddComponent("where", c);
-            }
-            foreach (var c in query.GetComponents("select"))
-            {
-                query.AddComponent("select", c);
             }
             return query;
         }

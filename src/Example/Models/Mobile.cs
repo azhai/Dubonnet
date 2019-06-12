@@ -10,7 +10,7 @@ namespace Dubonnet.Example.Models
         [EnumDesc("中国联通")] UNI
     }
 
-    public class Area
+    public class City
     {
         public int id { get; set; }
         public string province { get; set; }
@@ -28,7 +28,7 @@ namespace Dubonnet.Example.Models
     public class Mobile
     {
         public int id { get; set; }
-        public int area_id { get; set; }
+        public int city_id { get; set; }
         public string prefix { get; set; }
         public IspEnum ispcode { get; set; }
         public int changed_at { get; set; }

@@ -45,8 +45,7 @@ namespace Dubonnet.QueryBuilder.Compilers
             factory.SelectRaw($"ROW_NUMBER() OVER ({order}) AS [row_num]", ctx.Bindings);
 
             factory.ClearComponent("order");
-
-
+            
             var result = base.CompileSelectQuery(factory);
 
             if (limit == 0)
