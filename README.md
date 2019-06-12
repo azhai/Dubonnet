@@ -24,9 +24,10 @@ cd MyDubon
 ```
 并安装相关的依赖库
 ```bash
-dotnet add package MySqlConnector --version 0.49.3
-dotnet add package Dubonnet --version 1.50.5
-dotnet add package Dapper --version 2.1.1
+dotnet add package MySqlConnector --version 0.56.0
+dotnet add package MySqlConnector.Logging.Serilog --version 0.38.0
+dotnet add package Dapper --version 1.60.6
+dotnet add package Dubonnet --version 2.2.0
 ```
 3. 创建 MySQL 数据库，修改配置文件 appsettings.json 增加数据库连接
 
@@ -115,7 +116,7 @@ dotnet add package Dapper --version 2.1.1
 
 <hr>
 
-## API
+## Base API
 
 #### Retrieving entities by id
 ```csharp
@@ -169,9 +170,25 @@ db.Products.Delete(product);
 var products = db.Products.WhereIn("id", new int[]{1,2}).All();
 db.Products.Delete(products);
 ```
+
+#### Sharding
+```csharp
+using System;
+
+int pageNo = 1, pageSize = 10;
+DateTime someDay = DateTime.Now.AddMonths(-3);
+var referName = products.CurrentName + someDay.ToString("yyyyMM");
+var products = db.Products.Where("created_at", ">=", someDay.ToString("yyyy-MM-dd"));
+products.tableFilter = name => name.CompareTo(referName) >= 0;
+var count = unchecked((int)products.CountSharding());
+// Console.WriteLine("Count={0} PageNo={1}", count, pageNo);
+var rows = products.PaginateSharding(pageNo, pageSize);
+```
+
 <hr>
 
 ## Extensibility
+
 #### `ITableNameResolver`
 ```csharp
 // 根据 Model 类名对应表名，比如 Area 的表名为 t_areas

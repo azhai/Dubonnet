@@ -62,7 +62,7 @@ namespace Dubonnet
             instance = this;
             db = dbCxt;
             name = tableName;
-            EngineScope = dbCxt.DriverType;
+            EngineScope = db.DriverType;
             From(CurrentName);
         }
         

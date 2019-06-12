@@ -52,16 +52,15 @@ namespace Dubonnet.Example.Controllers
 
         public DubonQuery<Mobile> GetMobileQuery(string start, string stop = "")
         {
-            var prefix = "t_mobile_";
-            var startPre = prefix+(start+"000").Substring(0, 3);
             var query = db.Mobiles.Where("prefix", ">=", start);
+            var startPre = query.CurrentName + (start+"000").Substring(0, 3);
             if (string.IsNullOrEmpty(stop))
             {
                 query.tableFilter = name => name.CompareTo(startPre) >= 0;
             }
             else
             {
-                var stopPre = prefix+(stop+"999").Substring(0, 3);
+                var stopPre = query.CurrentName + (stop+"999").Substring(0, 3);
                 query.Where("prefix", "<=", stop + "9999999");
                 query.tableFilter = name => name.CompareTo(startPre) >= 0
                         && name.CompareTo(stopPre) <= 0;

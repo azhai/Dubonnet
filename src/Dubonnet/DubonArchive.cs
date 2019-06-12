@@ -66,7 +66,7 @@ namespace Dubonnet
             {
                 tableCounter = new TableCountDict();
                 tables = new List<string>();
-                foreach (var tableName in db.Schema.ListTable(CurrentName))
+                foreach (var tableName in ListTable(CurrentName))
                 {
                     if (tableFilter == null || tableFilter(tableName))
                     {
@@ -124,7 +124,7 @@ namespace Dubonnet
         /// <summary>
         /// Select step by step.
         /// </summary>
-        public List<M> PaginateSharding(int page = 1, int size = 100)
+        public List<M> PaginateSharding(int page = 1, int size = 100, bool desc = false)
         {
             if (page <= 0)
             {
@@ -134,7 +134,8 @@ namespace Dubonnet
             {
                 throw new ArgumentException("Param 'size' should be greater than 0", nameof(size));
             }
-            
+
+            IsTableNameDesc = desc;
             long offset = (page - 1) * size;
             var result = new List<M>();
             foreach (var tableName in filterShardingNames())

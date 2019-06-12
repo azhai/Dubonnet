@@ -18,8 +18,6 @@ namespace Dubonnet
 
         public IDbConnection Conn => _connection;
         
-        public DubonSchema Schema => new DubonSchema(this);
-        
         public Action<string> Log = sql => {
             Console.WriteLine(sql + ";");
         };
@@ -33,22 +31,27 @@ namespace Dubonnet
             get
             {
                 var driver = GetDriverName().ToLower();
-                if (driver.Contains("mysql") || driver.Contains("mariadb")) {
-                    return "mysql";
-                } else if (driver.Contains("percona") || driver.Contains("xtradb")) {
-                    return "mysql";
-                } else if (driver.Contains("pgsql") || driver.Contains("postgresql")) {
-                    return "pgsql";
-                } else if (driver.Contains("sqlite")) {
-                    return "sqlite";
-                } else if (driver.Contains("sqlclient") || driver.Contains("mssql")) {
-                    return "sqlsrv";
-                } else if (driver.Contains("sqlsrv") || driver.Contains("sqlserver")) {
-                    return "sqlsrv";
-                } else if (driver.Contains("oracle")) {
-                    return "oracle";
-                } else {
-                    return "unknow";
+                switch (true)
+                {
+                    case true when driver.Contains("mysql"): 
+                    case true when driver.Contains("mariadb"):
+                    case true when driver.Contains("percona"):
+                    case true when driver.Contains("xtradb"):
+                        return "mysql";
+                    case true when driver.Contains("pgsql"):
+                    case true when driver.Contains("postgresql"):
+                        return "pgsql";
+                    case true when driver.Contains("sqlite"):
+                        return "sqlite";
+                    case true when driver.Contains("sqlclient"):
+                    case true when driver.Contains("mssql"):
+                    case true when driver.Contains("sqlsrv"):
+                    case true when driver.Contains("sqlserver"):
+                        return "sqlsrv";
+                    case true when driver.Contains("oracle"):
+                        return "oracle";
+                    default:
+                        return "unknow";
                 }
             }
         }
