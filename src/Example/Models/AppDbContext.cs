@@ -9,10 +9,10 @@ namespace Dubonnet.Example.Models
     {
         public AppDbContext(IDbConnection conn) : base(conn, new CustomTableNameResolver())
         {
-            InitAllTables();
+            InitAllTables(); // 补上下面被注释的这部分初始化过程
         }
 
-        public DubonQuery<City> Cities => InitTable<City>();
+        public DubonQuery<City> Cities /* => InitTable<City>() */ ;
         public DubonQuery<Mobile> Mobiles => InitTable<Mobile>("t_mobile_");
     }
 }

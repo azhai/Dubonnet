@@ -5,7 +5,6 @@ namespace Dubonnet.Abstractions
 {
     /// <summary>
     /// Defines methods for resolving the key property of entities.
-    /// Custom implementations can be registered with <see cref="DubonMapper.SetKeyPropertyResolver"/>.
     /// </summary>
     public interface IKeyPropertyResolver
         {

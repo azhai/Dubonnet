@@ -6,7 +6,6 @@ namespace Dubonnet.Abstractions
    
         /// <summary>
         /// Defines methods for resolving data column for entities.
-        /// Custom implementations can be registerd with <see cref="DubonMapper.SetDataColumnResolver"/>.
         /// </summary>
         public interface IDataColumnResolver
         {

@@ -5,7 +5,6 @@ namespace Dubonnet.Abstractions
 
     /// <summary>
     /// Defines methods for resolving table names of entities.
-    /// Custom implementations can be registered with <see cref="DubonMapper.SetTableNameResolver"/>.
     /// </summary>
     public interface ITableNameResolver
     {
