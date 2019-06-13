@@ -7,7 +7,6 @@ namespace Dubonnet.Abstractions
 
     /// <summary>
     /// Defines methods for resolving the properties of entities.
-    /// Custom implementations can be registered with <see cref="DubonMapper.SetPropertyResolver"/>.
     /// </summary>
     public interface IPropertyResolver
     {

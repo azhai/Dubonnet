@@ -3,7 +3,6 @@ namespace Dubonnet.Abstractions
    
         /// <summary>
         /// Defines methods for resolving column names for entities.
-        /// Custom implementations can be registerd with <see cref="DubonMapper.SetColumnNameResolver"/>.
         /// </summary>
         public interface IColumnNameResolver
         {
