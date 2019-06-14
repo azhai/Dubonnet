@@ -56,14 +56,14 @@ namespace Dubonnet.Example.Controllers
             var startPre = query.CurrentName + (start+"000").Substring(0, 3);
             if (string.IsNullOrEmpty(stop))
             {
-                query.tableFilter = name => name.CompareTo(startPre) >= 0;
+                query.tableFilter = (string table, string db) => table.CompareTo(startPre) >= 0;
             }
             else
             {
                 var stopPre = query.CurrentName + (stop+"999").Substring(0, 3);
                 query.Where("prefix", "<=", stop + "9999999");
-                query.tableFilter = name => name.CompareTo(startPre) >= 0
-                        && name.CompareTo(stopPre) <= 0;
+                query.tableFilter = (string table, string db) => table.CompareTo(startPre) >= 0
+                        && table.CompareTo(stopPre) <= 0;
             }
             return query;
         }

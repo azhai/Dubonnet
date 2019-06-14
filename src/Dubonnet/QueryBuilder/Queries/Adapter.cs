@@ -9,34 +9,28 @@ namespace Dubonnet.QueryBuilder
         /// <summary>
         /// Compile sql and params.
         /// </summary>
-        public (string, Dictionary<string, object>) CompileSql(string sql, object[] args, Action<string> log = null)
+        public (string, Dictionary<string, object>) CompileSql(string sql, object[] args)
         {
             if (instance._compiler == null)
             {
                 instance._compiler = GetCompiler(instance.EngineScope);
             }
             var res = _compiler.Compile(sql, args);
-            if (log != null)
-            {
-                log(res.ToString());
-            }
+            instance.Log(res.ToString());
             return (res.Sql, res.NamedBindings);
         }
         
         /// <summary>
         /// Compile itself.
         /// </summary>
-        public (string, Dictionary<string, object>) CompileSql(Action<string> log = null)
+        public (string, Dictionary<string, object>) CompileSql()
         {
             if (instance._compiler == null)
             {
                 instance._compiler = GetCompiler(instance.EngineScope);
             }
             var res = _compiler.Compile(instance);
-            if (log != null)
-            {
-                log(res.ToString());
-            }
+            instance.Log(res.ToString());
             return (res.Sql, res.NamedBindings);
         }
         
