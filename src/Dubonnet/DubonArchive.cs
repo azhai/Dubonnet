@@ -50,6 +50,7 @@ namespace Dubonnet
         public const int COUMT_IS_EMPTY = -1;   // 尚未计数
         public const int COUMT_IS_DYNAMIC = -2; // 不缓存计数
 
+        public string DbNameRange = "";
         public bool IsTableNameDesc = false;
         public ITableCounter tableCounter { get; set; }
         public Func<string, string, bool> tableFilter { get; set; }
@@ -66,12 +67,13 @@ namespace Dubonnet
             {
                 tableCounter = new TableCountDict();
                 tables = new List<string>();
-                foreach ((string table, string dbname) in ListTable(CurrentName))
+                foreach (var table in ListTable(CurrentName, DbNameRange))
                 {
-                    if (tableFilter == null || tableFilter(table, dbname))
+                    if (tableFilter == null || tableFilter(table.TABLE_NAME, table.DbName()))
                     {
-                        tables.Add(table);
-                        tableCounter.SetTableCount(table, COUMT_IS_EMPTY);
+                        var tableName = table.ToString();
+                        tables.Add(tableName);
+                        tableCounter.SetTableCount(tableName, COUMT_IS_EMPTY);
                     }
                 }
             }

@@ -79,8 +79,8 @@ namespace Dubonnet
 
     public partial class DubonQuery<M>
     {
-        public static readonly ConcurrentDictionary<string, List<(string table, string dbname)>>
-            tableNameCache = new ConcurrentDictionary<string, List<(string table, string dbname)>>();
+        public static readonly ConcurrentDictionary<string, List<TableSchema>>
+            tableNameCache = new ConcurrentDictionary<string, List<TableSchema>>();
         public static readonly ConcurrentDictionary<Type, List<string>> 
             paramNameCache = new ConcurrentDictionary<Type, List<string>>();
 
@@ -90,17 +90,22 @@ namespace Dubonnet
             {
                 return "";
             }
-            if (false == dbName.EndsWith("()"))
+            var dbComp = " = '" + dbName + "'";
+            if (dbName.EndsWith("()"))
             {
-                dbName = "'" + dbName + "'";
+                dbComp = " = " + dbName;
+            }
+            else if (dbName.EndsWith("%"))
+            {
+                dbComp = " LIKE '" + dbName + "'";
             }
             switch (engine) {
                 case "sqlsrv":
-                    return " TABLE_CATALOG=" + dbName + " AND TABLE_SCHEMA='dbo' AND";
+                    return " TABLE_CATALOG" + dbComp + " AND TABLE_SCHEMA = 'dbo' AND";
                 case "mysql":
-                    return " TABLE_SCHEMA=" + dbName + " AND ";
+                    return " TABLE_SCHEMA" + dbComp + " AND ";
                 default:
-                    return " (TABLE_CATALOG=" + dbName + " OR TABLE_SCHEMA=" + dbName + ") AND";
+                    return " (TABLE_CATALOG" + dbComp + " OR TABLE_SCHEMA" + dbComp + ") AND";
             }
         }
 
@@ -186,17 +191,11 @@ namespace Dubonnet
             return db.Conn.Query<ColumnSchema>(sql, dict);
         }
 
-        public List<(string table, string dbname)> ListTable(string name, bool refresh = false)
+        public List<TableSchema> ListTable(string name, string dbName = "", bool refresh = false)
         {
-            if (refresh || !tableNameCache.TryGetValue(name, out List<(string table, string dbname)> tables))
+            if (refresh || !tableNameCache.TryGetValue(name, out List<TableSchema> tables))
             {
-                tables = new List<(string table, string dbname)>();
-                foreach (var s in GetTables(name, GetDbName(true)))
-                {
-                    string dbname = s.DbName(s.Engine());
-                    tables.Add((table:s.TABLE_NAME, dbname));
-                }
-                tableNameCache[name] = tables;
+                tables = tableNameCache[name] = GetTables(name, dbName).AsList();
             }
             return tables;
         }

@@ -54,6 +54,7 @@ namespace Dubonnet.Example.Controllers
         {
             var query = db.Mobiles.Where("prefix", ">=", start);
             var startPre = query.CurrentName + (start+"000").Substring(0, 3);
+            query.DbNameRange = query.GetDbName() + "%";
             if (string.IsNullOrEmpty(stop))
             {
                 query.tableFilter = (string table, string db) => table.CompareTo(startPre) >= 0;
