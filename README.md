@@ -179,6 +179,7 @@ int pageNo = 1, pageSize = 10;
 DateTime someDay = DateTime.Now.AddMonths(-3);
 var referName = products.CurrentName + someDay.ToString("yyyyMM");
 var products = db.Products.Where("created_at", ">=", someDay.ToString("yyyy-MM-dd"));
+products.DbNameRange = query.GetDbName(true)
 products.tableFilter = name => name.CompareTo(referName) >= 0;
 var count = unchecked((int)products.CountSharding());
 // Console.WriteLine("Count={0} PageNo={1}", count, pageNo);

@@ -8,6 +8,7 @@ namespace Dubonnet.QueryBuilder
     public abstract class AbstractQuery
     {
         protected AbstractQuery Parent;
+        public Action<string> Log { get; set; }
     }
 
     public abstract partial class QueryBase<Q> : AbstractQuery where Q : QueryBase<Q>
@@ -19,15 +20,19 @@ namespace Dubonnet.QueryBuilder
         private bool notFlag = false;
         public string EngineScope = null;
 
+        public QueryBase()
+        {
+        }
+
         public Q SetEngineScope(string engine)
         {
             instance.EngineScope = engine;
-
             return instance;
         }
 
-        public QueryBase()
+        public void SetLogAction(Action<string> log)
         {
+            instance.Log = log;
         }
 
         public abstract Q NewQuery();

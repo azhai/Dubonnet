@@ -65,6 +65,7 @@ namespace Dubonnet
             if (db != null)
             {
                 SetEngineScope(db.DriverType);
+                SetLogAction(db.Log);
             }
             From(CurrentName);
         }
@@ -89,6 +90,11 @@ namespace Dubonnet
             query.db = db;
             query.tableCounter = tableCounter;
             query.tableFilter = tableFilter;
+            if (db != null)
+            {
+                query.SetEngineScope(db.DriverType);
+                query.SetLogAction(db.Log);
+            }
             if (tableName != "")
             {
                 query.From(tableName);
@@ -100,9 +106,19 @@ namespace Dubonnet
         /// Gets the all rows from this table.
         /// </summary>
         /// <returns>Data from all table rows.</returns>
+        public IEnumerable<M> Raw(string sql, object param = null)
+        {
+            instance.Log(sql);
+            return db.Conn.Query<M>(sql, param);
+        }
+        
+        /// <summary>
+        /// Gets the all rows from this table.
+        /// </summary>
+        /// <returns>Data from all table rows.</returns>
         public IEnumerable<M> All()
         {
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.Query<M>(sql, dict);
         }
 
@@ -116,7 +132,7 @@ namespace Dubonnet
             {
                 Where(PrimaryKey, id);
             }
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.QueryFirstOrDefault<M>(sql, dict);
         }
         
@@ -147,7 +163,7 @@ namespace Dubonnet
         public M First(string order = "")
         {
             OrderBy(order != "" ? order : PrimaryKey).Limit(1);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.QueryFirst<M>(sql, dict);
         }
 
@@ -158,7 +174,7 @@ namespace Dubonnet
         public M Last(string order = "")
         {
             OrderByDesc(order != "" ? order : PrimaryKey).Limit(1);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.QueryFirst<M>(sql, dict);
         }
         
@@ -168,7 +184,7 @@ namespace Dubonnet
         public long Count(params string[] args)
         {
             AsCount(args);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<long>(sql, dict);
         }
         
@@ -178,7 +194,7 @@ namespace Dubonnet
         public M Agger(string name, params string[] args)
         {
             AsAggregate(name, args);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<M>(sql, dict);
         }
         
@@ -213,7 +229,7 @@ namespace Dubonnet
         public T InsertGetId<T>(object data)
         {
             AsInsert(data);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             var row = db.Conn.QueryFirst<InsertGetIdRow<T>>(sql, dict);
             return row.Id;
         }
@@ -224,7 +240,7 @@ namespace Dubonnet
         public int Insert(object data)
         {
             AsInsert(data);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -234,7 +250,7 @@ namespace Dubonnet
         public int Insert(IReadOnlyDictionary<string, object> values)
         {
             AsInsert(values);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -244,7 +260,7 @@ namespace Dubonnet
         public int Insert(IEnumerable<string> columns, IEnumerable<IEnumerable<object>> valuesCollection)
         {
             AsInsert(columns, valuesCollection);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -254,7 +270,7 @@ namespace Dubonnet
         public int Insert(IEnumerable<string> columns, DubonQuery<M> fromQuery)
         {
             AsInsert(columns, fromQuery);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -264,7 +280,7 @@ namespace Dubonnet
         public int Update(object data)
         {
             AsUpdate(data);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -274,7 +290,7 @@ namespace Dubonnet
         public int Update(IReadOnlyDictionary<string, object> values)
         {
             AsUpdate(values);
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
 
@@ -284,7 +300,7 @@ namespace Dubonnet
         public int Delete()
         {
             AsDelete();
-            var (sql, dict) = instance.CompileSql(db.Log);
+            var (sql, dict) = instance.CompileSql();
             return db.Conn.ExecuteScalar<int>(sql, dict);
         }
     }

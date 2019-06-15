@@ -50,9 +50,10 @@ namespace Dubonnet
         public const int COUMT_IS_EMPTY = -1;   // 尚未计数
         public const int COUMT_IS_DYNAMIC = -2; // 不缓存计数
 
+        public string DbNameRange = "";
         public bool IsTableNameDesc = false;
         public ITableCounter tableCounter { get; set; }
-        public Func<string, bool> tableFilter { get; set; }
+        public Func<string, string, bool> tableFilter { get; set; }
 
         /// <summary>
         /// 获取符合条件的表名，并统计每张表符合条件的行数
@@ -66,10 +67,11 @@ namespace Dubonnet
             {
                 tableCounter = new TableCountDict();
                 tables = new List<string>();
-                foreach (var tableName in ListTable(CurrentName))
+                foreach (var table in ListTable(CurrentName, DbNameRange))
                 {
-                    if (tableFilter == null || tableFilter(tableName))
+                    if (tableFilter == null || tableFilter(table.TABLE_NAME, table.DbName()))
                     {
+                        var tableName = table.ToString();
                         tables.Add(tableName);
                         tableCounter.SetTableCount(tableName, COUMT_IS_EMPTY);
                     }
@@ -124,7 +126,7 @@ namespace Dubonnet
         /// <summary>
         /// Select step by step.
         /// </summary>
-        public List<M> PaginateSharding(int page = 1, int size = 100, bool desc = false)
+        public List<M> PaginateSharding(int page = 1, int size = 100, int oriention = 0)
         {
             if (page <= 0)
             {
@@ -134,8 +136,11 @@ namespace Dubonnet
             {
                 throw new ArgumentException("Param 'size' should be greater than 0", nameof(size));
             }
+            if (0 != oriention)
+            {
+                IsTableNameDesc = oriention < 0;
+            }
 
-            IsTableNameDesc = desc;
             long offset = (page - 1) * size;
             var result = new List<M>();
             foreach (var tableName in filterShardingNames())
