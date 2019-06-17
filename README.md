@@ -175,12 +175,18 @@ db.Products.Delete(products);
 ```csharp
 using System;
 
+// 分库分表，假设产品按年分库，按月分表
+// 当前2019年6月表名为`db_product_y2019`.`t_product_m201906`
+
 int pageNo = 1, pageSize = 10;
 DateTime someDay = DateTime.Now.AddMonths(-3);
 var referName = products.CurrentName + someDay.ToString("yyyyMM");
 var products = db.Products.Where("created_at", ">=", someDay.ToString("yyyy-MM-dd"));
-products.DbNameRange = query.GetDbName(true)
-products.tableFilter = name => name.CompareTo(referName) >= 0;
+// 找出类似db_product_y2019等数据库，并倒序排列数据库和表名
+products.DbNameMatch = "db_product_y%";
+products.IsTableNameDesc = true;
+// 数据表名称限制为 t_products_m201906
+products.tableFilter = (table, db) => table.CompareTo(referName) >= 0;
 var count = unchecked((int)products.CountSharding());
 // Console.WriteLine("Count={0} PageNo={1}", count, pageNo);
 var rows = products.PaginateSharding(pageNo, pageSize);
