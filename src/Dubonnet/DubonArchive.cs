@@ -50,7 +50,7 @@ namespace Dubonnet
         public const int COUMT_IS_EMPTY = -1;   // 尚未计数
         public const int COUMT_IS_DYNAMIC = -2; // 不缓存计数
 
-        public string DbNameRange = "";
+        public string DbNameMatch = "";
         public bool IsTableNameDesc = false;
         public ITableCounter tableCounter { get; set; }
         public Func<string, string, bool> tableFilter { get; set; }
@@ -67,7 +67,7 @@ namespace Dubonnet
             {
                 tableCounter = new TableCountDict();
                 tables = new List<string>();
-                foreach (var table in ListTable(CurrentName, DbNameRange))
+                foreach (var table in ListTable(CurrentName, DbNameMatch))
                 {
                     if (tableFilter == null || tableFilter(table.TABLE_NAME, table.DbName()))
                     {
@@ -126,7 +126,7 @@ namespace Dubonnet
         /// <summary>
         /// Select step by step.
         /// </summary>
-        public List<M> PaginateSharding(int page = 1, int size = 100, int oriention = 0)
+        public List<M> PaginateSharding(int page = 1, int size = 100)
         {
             if (page <= 0)
             {
@@ -135,10 +135,6 @@ namespace Dubonnet
             if (size <= 0)
             {
                 throw new ArgumentException("Param 'size' should be greater than 0", nameof(size));
-            }
-            if (0 != oriention)
-            {
-                IsTableNameDesc = oriention < 0;
             }
 
             long offset = (page - 1) * size;

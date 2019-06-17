@@ -84,9 +84,9 @@ namespace Dubonnet
         public static readonly ConcurrentDictionary<Type, List<string>> 
             paramNameCache = new ConcurrentDictionary<Type, List<string>>();
 
-        public static string GetDbCond(string engine, string dbName = "")
+        public static string GetDbCond(string engine, string dbName)
         {
-            if ("" == dbName)
+            if ("*" == dbName || "%" == dbName)
             {
                 return "";
             }
@@ -141,61 +141,62 @@ namespace Dubonnet
             return db.Conn.ExecuteScalar<string>(rawSql);
         }
 
-        public IEnumerable<TableSchema> GetTables(string tableName, string dbName = "", bool isDesc = false)
+        public IEnumerable<TableSchema> GetTables(string tableName, string dbNameMatch = "", bool isDesc = false)
         {
-            tableName = tableName + "%";
-            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+            if ("" == dbNameMatch)
+            {
+                dbNameMatch = GetDbName(true);
+            }
+            var where = " WHERE" + GetDbCond(db.DriverType, dbNameMatch) + " TABLE_NAME LIKE ?";
+            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES" + where + " ORDER BY TABLE_NAME";
             switch (db.DriverType) {
                 case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG,TABLE_SCHEMA,TABLE_NAME"
                              + " FROM [INFORMATION_SCHEMA].TABLES"
-                             + " WHERE" + GetDbCond(db.DriverType, dbName)
-                             + " TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+                             + where + " ORDER BY TABLE_NAME";
                     break;
                 case "mysql":
                     tableName = tableName.Replace("_", "\\_");
                     rawSql = "SELECT TABLE_CATALOG,TABLE_SCHEMA,TABLE_NAME,TABLE_ROWS,AUTO_INCREMENT"
                              + " FROM `information_schema`.TABLES"
-                             + " WHERE" + GetDbCond(db.DriverType, dbName)
-                             + " TABLE_NAME LIKE ? ORDER BY TABLE_NAME";
+                             + where + " ORDER BY TABLE_NAME";
                     break;
             }
             if (isDesc)
             {
                 rawSql += " DESC";
             }
-            var (sql, dict) = instance.CompileSql(rawSql, new object[]{tableName});
+            var (sql, dict) = instance.CompileSql(rawSql, new object[]{tableName + "%"});
             return db.Conn.Query<TableSchema>(sql, dict);
         }
         
-        public IEnumerable<ColumnSchema> GetColumns(string tableName, string dbName = "")
+        public IEnumerable<ColumnSchema> GetColumns(string tableName)
         {
-            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=?";
+            var where = " WHERE" + GetDbCond(db.DriverType, GetDbName(true)) + " TABLE_NAME = ?";
+            var rawSql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS" + where + " ORDER BY ORDINAL_POSITION";
             switch (db.DriverType) {
                 case "sqlsrv":
                     rawSql = "SELECT TABLE_CATALOG,TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,DATA_TYPE,"
                              + "COLUMN_DEFAULT,IS_NULLABLE,ORDINAL_POSITION"
                              + " FROM [INFORMATION_SCHEMA].COLUMNS"
-                             + " WHERE" + GetDbCond(db.DriverType, dbName)
-                             + " TABLE_NAME=? ORDER BY ORDINAL_POSITION";
+                             + where + " ORDER BY ORDINAL_POSITION";
                     break;
                 case "mysql":
                     rawSql = "SELECT TABLE_CATALOG,TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,DATA_TYPE,"
                              + "COLUMN_DEFAULT,IS_NULLABLE,COLUMN_KEY,EXTRA,ORDINAL_POSITION"
                              + " FROM `information_schema`.COLUMNS"
-                             + " WHERE" + GetDbCond(db.DriverType, dbName)
-                             + " TABLE_NAME=? ORDER BY ORDINAL_POSITION";
+                             + where + " ORDER BY ORDINAL_POSITION";
                     break;
             }
             var (sql, dict) = instance.CompileSql(rawSql, new object[]{tableName});
             return db.Conn.Query<ColumnSchema>(sql, dict);
         }
 
-        public List<TableSchema> ListTable(string name, string dbName = "", bool refresh = false)
+        public List<TableSchema> ListTable(string name, string dbNameMatch = "", bool refresh = false)
         {
             if (refresh || !tableNameCache.TryGetValue(name, out List<TableSchema> tables))
             {
-                tables = tableNameCache[name] = GetTables(name, dbName).AsList();
+                tables = tableNameCache[name] = GetTables(name, dbNameMatch).AsList();
             }
             return tables;
         }
